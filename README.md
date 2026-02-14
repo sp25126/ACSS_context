@@ -2,195 +2,126 @@
 
 > **"Stop repeating yourself to every new AI agent."**
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](package.json)
+
 ACSS is a lightweight, portable protocol that captures the *intent*, *decisions*, and *context* of a coding session. It bridges the gap between human developers and AI assistants (or between two AI assistants), preventing "Context Rot" when switching tools.
 
-![Extension Demo](vscode-extension/media/demo_placeholder.png)
+---
 
-## 🚨 The Problem
+## 🚀 Quick Start (Watch the Demo)
 
-You're building a feature with ChatGPT. You switch to Claude for a second opinion. You ask a local LLM to refactor a file.
-In every new chat, you have to paste:
-1.  "I'm building a React app..."
-2.  "We decided to use Tailwind, not CSS Modules..."
-3.  "The API key is in `.env`, don't expose it..."
+We have included a fully automated demo script to show you ACSS in action.
 
-**Context Rot** sets in. The new AI guesses wrong. You waste time re-explaining architecture.
+```batch
+# Run the demo on Windows
+demo_video.bat
+```
 
-## 💡 The Solution
+This script simulates a full development lifecycle:
+1.  **Project Initialization**: Auto-detects tech stack.
+2.  **Context Logging**: captures decisions & errors.
+3.  **Chat Import**: Ingests ChatGPT/Claude conversations.
+4.  **Instant Handoff**: Transfers context between AIs.
+5.  **Watch Mode**: Real-time file tracking.
 
-**ACSS (AI Coding Session State)** creates a `session.acss.json` file in your repo. It tracks:
--   **Intent**: "Implementing the Login Flow"
--   **Status**: `in_progress`
--   **Decisions**: "Use JWT for auth", "Pin React version to 18"
--   **Blockers**: "Pending API specs from backend team"
+---
 
-When you hand off to a new AI, you don't paste code. You paste the **ACSS Handoff Prompt**. The AI instantly "logs in" to your mindset.
+## 🏗️ What is ACSS?
 
-## 🏗️ Build & Install (Developer Guide)
+ACSS captures your development flow by combining:
+1.  **Complete Project Analysis**: Directory structure, file tree, and tech stack detection.
+2.  **AI Conversation History**: Imports chats from ChatGPT, Claude, etc.
+3.  **Real-time Context**: Watches file changes and git commits as you work.
 
-This is a **monorepo**. Follow these steps to set up the tools from scratch.
+The output is a structured, AI-optimized context (`.acss/session.acss.json`) that can be handed to *any* AI coding assistant.
+
+---
+
+## 🛠️ Installation & Setup
 
 ### Prerequisites
-- Node.js 18+
-- npm 9+
+*   Node.js (v16+)
+*   npm (v8+)
+*   Git
 
-### 1. Build the Core Library
-The CLI and Extension both depend on `@acss/core`.
+### Step 1: Install
+Clone the repository and install dependencies:
+
 ```bash
+git clone https://github.com/sp25126/ACSS_context.git
+cd ACSS_context
+
+# Install Core Logic
 cd packages/core
 npm install
 npm run build
-```
 
-### 2. Install the CLI
-You can install the CLI globally from the source:
-```bash
+# Install CLI Tool
 cd ../../cli
 npm install
 npm run build
-npm link # Makes 'acss' available globally
+npm link
 ```
-*Now you can run `acss --help` anywhere.*
 
-### 3. Run the VS Code Extension
-1. Open the project root in VS Code.
-2. Go to "Run and Debug" (Ctrl+Shift+D).
-3. Select **"Extension"** and hit Play (F5).
-4. A new "Extension Development Host" window will open.
+### Step 2: Verification
+Verify the installation by running:
+```bash
+acss --help
+```
 
 ---
 
-## ✨ Key Features
-
--   **cli** (`@acss/cli`):
-    -   `acss init`: Start tracking a session in seconds.
-    -   `acss log`: Record decisions, errors, and next steps as you work.
-    -   `acss load`: Generate a **human-readable prompt** ("Take over this session...") for ChatGPT/Claude/Gemini.
-    -   `acss compress`: Use a local LLM (Ollama) to shrink your session history without losing context.
--   **VS Code Extension**:
-    -   Real-time **Sidebar** that syncs with the CLI.
-    -   See your "Next Steps" and "Decisions" always pinned to your IDE.
-
-## 🚀 Quick Start (User Mode)
+## 🔄 Core Workflows
 
 ### 1. Initialize a Project
+Go to any project directory and run:
 ```bash
-cd my-cool-app
-acss init --name "SuperApp" --tech "Next.js, Supabase" --intent "Building MVP"
-```
-*Creates `.acss/session.acss.json`*
-
-### 2. Work & Log
-```bash
-# Log a decision so the NEXT AI knows why you did this
-acss log decision "Chose Zod for validation to ensure type safety"
-
-# Log a blocker
-acss log error "Database connection timeout in dev environment"
-
-# Log what to do next
-acss log next "Implement user profile page"
+acss init
+# ACSS will scan your project and create a session file.
 ```
 
-### 3. The "Handoff" (Magic Moment) 🪄
-When you switch to a new AI chat:
+### 2. Import Chat Context
+Export your conversation from ChatGPT or Claude and import it:
 ```bash
-# Generates a perfect context prompt
-acss load --for chatgpt > handoff.txt
-```
-**Paste `handoff.txt` into ChatGPT.** It will say:
-> *"I see we're building SuperApp with Next.js. I blocked on the DB connection. I see you chose Zod. Let's work on the profile page."*
-
-## 📦 Monorepo Structure
-
--   `packages/core`: The pure TypeScript library for ACSS logic (Parsing, Validation, Compression).
--   `cli`: The command-line interface (uses `core`).
--   `vscode-extension`: The editor companion (uses `core` type definitions).
-
-## 🛠️ Advanced Usage
-
-### Local LLM Compression
-Running out of context window? Compress your session history using a local model (Ollama):
-```bash
-acss compress --model llama3
+acss import ./chat-export.json
 ```
 
-### Live Stream to IDE
-Connect your CLI to the VS Code extension:
+### 3. Generate Handoff
+Create a context-rich prompt for your next AI assistant:
 ```bash
-acss stream
+acss load --for claude > handoff_claude.txt
 ```
-*Your decisions appear in the sidebar instantly.*
+
+### 4. Watch Mode (Real-time)
+Automatically track file changes and git commits:
+```bash
+acss watch
+```
 
 ---
 
-## 🔮 Future Roadmap
+## 📦 Data Structure
 
-### Phase 1: Post-Hackathon Stabilization (Weeks 1-2)
-**Goal**: Make it production-ready for early adopters.
-
-- [ ] **Package & publish to npm**:
-    - `npm install -g acss`
-    - Proper semantic versioning and CI/CD pipeline for releases.
-- [ ] **VS Code extension to marketplace**:
-    - Fix any stability issues from testing.
-    - Add marketplace listing with screenshots.
-    - Gather initial user feedback.
-- [ ] **Enhanced validation & error recovery**:
-    - Auto-backup sessions before operations.
-    - Recovery mode for corrupted sessions.
-    - Better error messages with solution links.
-- [ ] **Documentation site**:
-    - GitHub Pages or Vercel.
-    - Interactive examples and video tutorials.
-
-### Phase 2: AI Tool Integrations + Auto-Capture (Weeks 3-6)
-**Goal**: Native integration with popular AI coding tools + automatic session tracking.
-
-- [ ] **AI Tool Integrations**:
-    - **Cursor IDE plugin**: Auto-capture sessions, native export/import.
-    - **GitHub Copilot**: Chat integration to read ACSS sessions.
-    - **Windsurf**: Seamless handoff support.
-    - **Browser extensions**: One-click export for ChatGPT/Claude web.
-- [ ] **🚀 AUTO CONTEXT LOGGER (Innovation)**:
-    - **File watcher**: Monitor file changes in background.
-    - **Smart git integration**: Auto-log commits as decisions.
-    - **Terminal tracking**: Capture build errors and commands.
-    - **Privacy-first**: Local-only, opt-in filtering.
-
-### Phase 3: Team Collaboration (Weeks 7-10)
-**Goal**: Enable team handoffs, not just AI handoffs.
-
-- [ ] **Session sharing**: Cloud sync for team links ("Continue where Alex left off").
-- [ ] **Team dashboard**: View active sessions and blockers.
-- [ ] **Git integration**: Auto-commit ACSS state with code; PR context.
-
-### Phase 4: Intelligence Layer (Weeks 11-16)
-**Goal**: Make ACSS smarter and more valuable over time.
-
-- [ ] **Pattern detection**: "You've hit this CORS error 3 times".
-- [ ] **Auto-enrichment**: Link errors to stack traces and docs.
-- [ ] **AI model comparison**: Track which AI gave better suggestions (A/B testing).
-- [ ] **Session analytics**: Time per task, common blockers.
-
-### Phase 5: Ecosystem & API (Months 5-6)
-**Goal**: Build a platform, not just a tool.
-
-- [ ] **Public API**: RESTful API and webhooks.
-- [ ] **Session Marketplace**: Share anonymized "How I solved X" templates.
-- [ ] **Plugin System**: Custom compressors and validators.
-- [ ] **Enterprise**: SSO, Audit logs, Self-hosted.
-
-### Long-term Vision
-> **"ACSS becomes the standard format for AI-assisted development state"**
-
-Just like **Git** standardized version control and **Docker** standardized containers, **ACSS** standardizes AI coding context. Every AI tool, IDE, and platform speaks ACSS. Developers never lose context again.
-
-### Why This Matters
-- **Current state**: Developers waste ~15 minutes per tool switch.
-- **With ACSS**: Switch tools in 30 seconds.
-- **Impact**: 28M developers x 1% adoption = **280,000 hours saved weekly**.
+Your session state is stored in `.acss/session.acss.json`. It includes:
+*   **Project Metadata**: `fileTree`, `techStack`, `totalFiles`.
+*   **Current Task**: `intent`, `status`.
+*   **History**: `decisions` (manual + git), `errorsEncountered`.
+*   **Context**: `chatContext` (imported insights), `filesModified` (watch logs).
 
 ---
 
-*Verified Hackathon Submission - 2026*
+## 📬 Contact & Opportunities
+
+**I am currently looking for Job / Internship opportunities.**
+
+If you are interested in my work or would like to discuss potential collaborations, please reach out!
+
+📧 **Email**: [saumyavishwam@gmail.com](mailto:saumyavishwam@gmail.com)
+🔗 **GitHub**: [https://github.com/sp25126](https://github.com/sp25126)
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

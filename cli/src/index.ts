@@ -3,29 +3,30 @@ import { Command } from 'commander';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import chalk from 'chalk';
-import { createEmptySession, addDecision, addError, addNextStep, updateTask, generatePrompt, PromptTarget, compressSession, mergeSessions, AcssSession } from '@acss/core';
+import { createEmptySession, addDecision, addError, resolveError, addNextStep, updateTask, generatePrompt, PromptTarget, compressSession, mergeSessions, AcssSession } from '@acss/core';
 import { startStreamServer } from './stream-server';
 import { getConfig, setConfig } from './config-manager';
 
+export const ACSS_DIR = '.acss';
+export const SESSION_FILE = 'session.acss.json';
+
 const program = new Command();
-const ACSS_DIR = '.acss';
-const SESSION_FILE = 'session.acss.json';
 
 program
     .name('acss')
     .description('AI Coding Session State (ACSS) Capture Tool')
     .version('0.1.0');
 
-async function loadSession() {
+export async function loadSession() {
     const sessionPath = path.join(process.cwd(), ACSS_DIR, SESSION_FILE);
     if (!(await fs.pathExists(sessionPath))) {
         console.error(chalk.red('✘ No ACSS session found. Run "acss init" first.'));
         process.exit(1);
     }
-    return { session: await fs.readJson(sessionPath), sessionPath };
+    return { session: await fs.readJson(sessionPath) as AcssSession, sessionPath };
 }
 
-async function saveSession(sessionPath: string, session: any) {
+export async function saveSession(sessionPath: string, session: AcssSession) {
     const { validateSession } = require('@acss/core');
     const validation = validateSession(session);
     if (!validation.valid) {
@@ -87,10 +88,20 @@ program
         }
 
         const sessionId = Math.random().toString(36).substring(7);
+
+        console.log(chalk.dim('🔍 Scanning directory structure...'));
+        const { DirectoryScanner } = require('@acss/core');
+        const scanner = new DirectoryScanner();
+        const scanResult = await scanner.scan(projectRoot);
+        console.log(chalk.dim(`   Found ${scanResult.totalFiles} files (${scanResult.totalLines} lines).`));
+
         let session = createEmptySession(sessionId, projectRoot, {
             name: answers.name,
             techStack: answers.techStack,
             entryPoints: answers.entryPoints,
+            fileTree: scanResult.structure,
+            totalFiles: scanResult.totalFiles,
+            totalLines: scanResult.totalLines
         });
 
         session = updateTask(session, {
@@ -113,7 +124,7 @@ log
     .command('decision')
     .description('Log a technical decision')
     .argument('<text>', 'The decision description')
-    .action(async (text) => {
+    .action(async (text: string) => {
         const { session, sessionPath } = await loadSession();
         const updated = addDecision(session, text);
         await saveSession(sessionPath, updated);
@@ -126,8 +137,8 @@ log
     .argument('<message>', 'Error message')
     .option('-f, --file <path>', 'File where error occurred')
     .option('-l, --line <number>', 'Line number', parseInt)
-    .option('-r, --resolved <boolean>', 'Current resolution status', (v) => v === 'true', false)
-    .action(async (message, options) => {
+    .option('-r, --resolved <boolean>', 'Current resolution status', (v: any) => v === 'true', false)
+    .action(async (message: string, options: any) => {
         const { session, sessionPath } = await loadSession();
         const updated = addError(session, {
             message,
@@ -140,10 +151,21 @@ log
     });
 
 log
+    .command('resolve')
+    .description('Mark an error as resolved')
+    .argument('<message>', 'The error message to resolve')
+    .action(async (message: string) => {
+        const { session, sessionPath } = await loadSession();
+        const updated = resolveError(session, message);
+        await saveSession(sessionPath, updated);
+        console.log(chalk.green(`✔ Error resolved: ${message}`));
+    });
+
+log
     .command('next')
     .description('Log a next step')
     .argument('<text>', 'Description of the next step')
-    .action(async (text) => {
+    .action(async (text: string) => {
         const { session, sessionPath } = await loadSession();
         const updated = addNextStep(session, text);
         await saveSession(sessionPath, updated);
@@ -209,7 +231,7 @@ program
 program
     .command('config')
     .description('Manage ACSS configuration (get/set defaults)')
-    .argument('[key]', 'Configuration key (model, endpoint, author)')
+    .argument('[key]', 'Configuration key (model, endpoint, author, cloudUrl, brainMode)')
     .argument('[value]', 'Value to set')
     .action((key, value) => {
         if (!key) {
@@ -223,6 +245,62 @@ program
         } else {
             console.log(chalk.blue(`${key}: ${getConfig(key)}`));
         }
+    });
+
+program
+    .command('brain [url]')
+    .description('Check health or connect to Cloud Brain. Example: acss brain https://xyz.ngrok.app')
+    .action(async (url) => {
+        const { LLMService } = require('@acss/core');
+        const config = getConfig();
+
+        if (url && url !== 'status') {
+            // Connect logic
+            setConfig('cloudUrl', url);
+            setConfig('brainMode', 'cloud');
+            console.log(chalk.green(`✔ Connected to Cloud Brain: ${url}`));
+            console.log(chalk.cyan('✔ Brain Mode set to "cloud" (Strict GPU Mode).'));
+            console.log(chalk.dim('ℹ Run "acss brain status" to verify health at any time.'));
+            return;
+        }
+
+        // Status logic
+        console.log(chalk.bold('\nACSS Dual Brain Status:'));
+
+        // Check Local
+        console.log(chalk.blue('\n💻 Local Brain (Ollama):'));
+        try {
+            const { default: axios } = await import('axios');
+            const localBase = (config.endpoint || 'http://localhost:11434/api/generate').replace('/api/generate', '');
+            await axios.get(`${localBase}/api/tags`, { timeout: 2000 });
+            console.log(chalk.green(`  ✔ Online (${config.model})`));
+        } catch (e) {
+            console.log(chalk.red('  ✘ Offline (Make sure "ollama serve" is running)'));
+        }
+
+        // Check Cloud
+        if (config.cloudUrl) {
+            console.log(chalk.cyan('\n☁️ Cloud Brain (Colab):'));
+            try {
+                const { default: axios } = await import('axios');
+                const cloudRes = await axios.get(`${config.cloudUrl}/health`, { timeout: 5000 });
+                console.log(chalk.green(`  ✔ Online (${cloudRes.data.model} on ${cloudRes.data.device})`));
+            } catch (e: any) {
+                console.log(chalk.red(`  ✘ Offline (${e.message})`));
+            }
+        } else {
+            console.log(chalk.dim('\n☁️ Cloud Brain: Not configured (use "acss brain <url>")'));
+        }
+        console.log('');
+    });
+
+program
+    .command('local')
+    .description('Switch to Local Brain (Ollama) instantly')
+    .action(() => {
+        setConfig('brainMode', 'local');
+        console.log(chalk.blue('✔ Switched to Local Brain (Ollama Mode).'));
+        console.log(chalk.dim('ℹ Privacy-first: No requests will be sent to the cloud.'));
     });
 
 program
@@ -281,27 +359,51 @@ program
     .command('compress')
     .description('Generate compressed session summary using local LLM')
     .option('-m, --model <name>', 'Local LLM model name', getConfig('model'))
-    .option('-e, --endpoint <url>', 'Local LLM API endpoint', getConfig('endpoint'))
+    .option('-e, --endpoint <url>', 'Local LLM API endpoint')
+    .option('-o, --output <path>', 'Output file path', path.join(ACSS_DIR, 'session-compressed.json'))
     .action(async (options) => {
-        const { session, sessionPath } = await loadSession();
-        console.log(chalk.blue('ℹ Compressing session using local LLM...'));
+        const { session } = await loadSession();
+        const config = getConfig();
+        console.log(chalk.blue(`🔄 Compressing session with ${options.model || config.model}...`));
+
+        const originalSize = JSON.stringify(session).length; // Rough token approximation (chars)
+        console.log(chalk.dim(`📊 Original size: ${Math.round(originalSize / 4)} tokens`));
+
         try {
-            const compressed = await compressSession(session, {
-                model: options.model,
-                endpoint: options.endpoint
+            const { LLMService } = require('@acss/core');
+            const llm = new LLMService({
+                model: options.model || config.model,
+                localUrl: options.endpoint || config.endpoint || 'http://localhost:11434',
+                cloudUrl: config.cloudUrl,
+                brainMode: config.brainMode
             });
-            await saveSession(sessionPath, compressed);
-            console.log(chalk.green('✔ Session compressed successfully.'));
+
+            console.log(chalk.dim('⚙️  Processing with local LLM...'));
+            const compressed = await compressSession(session, llm);
+
+            const outputPath = path.isAbsolute(options.output) ? options.output : path.join(process.cwd(), options.output);
+            await fs.ensureDir(path.dirname(outputPath));
+            await fs.writeJson(outputPath, compressed, { spaces: 2 });
+
+            const compressedSize = JSON.stringify(compressed).length;
+            const reduction = Math.round((1 - compressedSize / originalSize) * 100);
+
+            console.log(chalk.green('✓ Compression complete'));
+            console.log(chalk.cyan(`📉 Compressed size: ${Math.round(compressedSize / 4)} tokens (${reduction}% reduction)`));
+            console.log(chalk.dim(`💾 Saved to: ${options.output}`));
         } catch (error: any) {
-            if (error.code === 'ECONNREFUSED') {
-                console.error(chalk.red(`✖ Connection refused to local LLM at ${options.endpoint}.`));
-                console.error(chalk.yellow('  ➜ Make sure Ollama/Local LLM is running (e.g., "ollama serve").'));
-                console.error(chalk.yellow('  ➜ Or update config with "acss config endpoint <url>".'));
-            } else {
-                console.error(chalk.red(`✖ Compression failed: ${error instanceof Error ? error.message : String(error)}`));
-            }
+            console.error(chalk.red(`✖ Compression failed: ${error.message}`));
             process.exit(1);
         }
     });
+
+const { registerImportCommand } = require('./commands/import');
+registerImportCommand(program);
+
+const { registerWatchCommand } = require('./commands/watch');
+registerWatchCommand(program);
+
+const { registerIngestCommand } = require('./commands/ingest');
+registerIngestCommand(program);
 
 program.parse();

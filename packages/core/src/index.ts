@@ -1,12 +1,27 @@
 export * from './acss-schema';
 export * from './prompt-generator';
 export * from './compressor';
+export * from './importers/DocumentLoader';
+export * from './importers/ChatParser';
+export * from './importers/ChatIngestService';
+export * from './LiveContextManager';
+export * from './llm/LLMService';
+export * from './session-utils';
+export * from './validator';
+export * from './analysis/DirectoryScanner';
 import { AcssSession } from './acss-schema';
 
 export function createEmptySession(
     sessionId: string,
     projectRoot: string,
-    metadata: { name: string; techStack: string[]; entryPoints: string[] }
+    metadata: {
+        name: string;
+        techStack: string[];
+        entryPoints: string[];
+        fileTree?: Record<string, string[]>;
+        totalFiles?: number;
+        totalLines?: number;
+    }
 ): AcssSession {
     const now = new Date().toISOString();
     return {
@@ -83,6 +98,17 @@ export function addError(
     };
 }
 
+export function resolveError(session: AcssSession, message: string): AcssSession {
+    const now = new Date().toISOString();
+    return {
+        ...session,
+        updatedAt: now,
+        errorsEncountered: session.errorsEncountered.map(e =>
+            e.message === message ? { ...e, resolved: true } : e
+        ),
+    };
+}
+
 export function addNextStep(session: AcssSession, step: string): AcssSession {
     const now = new Date().toISOString();
     return {
@@ -129,12 +155,15 @@ export function mergeSessions(sessions: AcssSession[]): AcssSession {
     const decisionsSet = new Set<string>();
     const stepsSet = new Set<string>();
     const errorMap = new Map<string, AcssSession['errorsEncountered'][number]>();
+    const sourceMap = new Map<string, AcssSession['sources'][number]>();
 
     sessions.forEach((s) => {
-        // filesModified: union, dedupe by path + changeType
+        // filesModified: dedupe by path, keep latest timestamp
         s.filesModified.forEach((f) => {
-            const key = `${f.path}:${f.changeType}`;
-            fileMap.set(key, f);
+            const existing = fileMap.get(f.path);
+            if (!existing || new Date(f.timestamp) > new Date(existing.timestamp)) {
+                fileMap.set(f.path, f);
+            }
             fileAppearanceCount.set(f.path, (fileAppearanceCount.get(f.path) || 0) + 1);
         });
 
@@ -147,14 +176,16 @@ export function mergeSessions(sessions: AcssSession[]): AcssSession {
         // errorsEncountered: dedupe by message
         s.errorsEncountered.forEach(e => errorMap.set(e.message, e));
 
-        // sources: concatenate
-        merged.sources.push(...s.sources);
+        // sources: dedupe by tool + note
+        s.sources.forEach(src => {
+            const key = `${src.tool}:${src.note || ''}`;
+            sourceMap.set(key, src);
+        });
     });
 
     // Finalize files: mark important if appears in >1 session
-    fileMap.forEach((f, key) => {
-        const path = key.split(':')[0];
-        if ((fileAppearanceCount.get(path) || 0) > 1) {
+    fileMap.forEach((f) => {
+        if ((fileAppearanceCount.get(f.path) || 0) > 1) {
             f.important = true;
         }
         merged.filesModified.push(f);
@@ -163,28 +194,8 @@ export function mergeSessions(sessions: AcssSession[]): AcssSession {
     merged.decisions = Array.from(decisionsSet);
     merged.nextSteps = Array.from(stepsSet);
     merged.errorsEncountered = Array.from(errorMap.values());
+    merged.sources = Array.from(sourceMap.values());
 
     return merged;
 }
 
-export function validateSession(session: any): { valid: boolean; errors: { message: string }[] } {
-    const errors: { message: string }[] = [];
-    const requiredFields = [
-        'sessionId',
-        'projectRoot',
-        'projectMetadata',
-        'currentTask',
-        'filesModified',
-    ];
-
-    requiredFields.forEach((f) => {
-        if (!session[f]) {
-            errors.push({ message: `Missing required field: ${f}` });
-        }
-    });
-
-    return {
-        valid: errors.length === 0,
-        errors,
-    };
-}

@@ -27,9 +27,9 @@ describe('ACSS Core Utilities', () => {
         s2.currentTask.lastUpdatedAt = '2026-01-02T00:00:00Z';
         s2.currentTask.intent = 'S2 Intent';
 
-        const change1 = { path: 'shared.ts', changeType: 'created' as const, summary: 'S1 change' };
-        const change2 = { path: 'shared.ts', changeType: 'modified' as const, summary: 'S2 change' };
-        const change3 = { path: 'unique.ts', changeType: 'created' as const, summary: 'Unique change' };
+        const change1 = { path: 'shared.ts', changeType: 'created' as const, timestamp: '2026-02-14T10:00:00Z', summary: 'S1 change' };
+        const change2 = { path: 'shared.ts', changeType: 'modified' as const, timestamp: '2026-02-14T10:05:00Z', summary: 'S2 change' };
+        const change3 = { path: 'unique.ts', changeType: 'created' as const, timestamp: '2026-02-14T10:10:00Z', summary: 'Unique change' };
 
         s1.filesModified.push(change1);
         s2.filesModified.push(change2, change3);

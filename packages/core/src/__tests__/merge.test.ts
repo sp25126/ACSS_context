@@ -36,9 +36,9 @@ describe('mergeSessions Advanced Rules', () => {
         const s1 = createEmptySession('s1', projectRoot, metadata);
         const s2 = createEmptySession('s2', projectRoot, metadata);
 
-        const changeA = { path: 'file1.ts', changeType: 'modified' as const, summary: 'A' };
-        const changeB = { path: 'file1.ts', changeType: 'modified' as const, summary: 'B' }; // Exact same path+type
-        const changeC = { path: 'file1.ts', changeType: 'created' as const, summary: 'C' }; // Different type
+        const changeA = { path: 'file1.ts', changeType: 'modified' as const, timestamp: '2026-02-14T10:00:00Z', summary: 'A' };
+        const changeB = { path: 'file1.ts', changeType: 'modified' as const, timestamp: '2026-02-14T10:05:00Z', summary: 'B' }; // Exact same path+type, newer
+        const changeC = { path: 'file1.ts', changeType: 'created' as const, timestamp: '2026-02-14T09:55:00Z', summary: 'C' }; // Different type
 
         s1.filesModified.push(changeA);
         s2.filesModified.push(changeB, changeC);
@@ -55,9 +55,9 @@ describe('mergeSessions Advanced Rules', () => {
         const s1 = createEmptySession('s1', projectRoot, metadata);
         const s2 = createEmptySession('s2', projectRoot, metadata);
 
-        const changeS1 = { path: 'shared.ts', changeType: 'modified' as const, summary: 'S1' };
-        const changeS2 = { path: 'shared.ts', changeType: 'created' as const, summary: 'S2' };
-        const changeUnique = { path: 'unique.ts', changeType: 'modified' as const, summary: 'U' };
+        const changeS1 = { path: 'shared.ts', changeType: 'modified' as const, timestamp: '2026-02-14T10:00:00Z', summary: 'S1' };
+        const changeS2 = { path: 'shared.ts', changeType: 'created' as const, timestamp: '2026-02-14T10:05:00Z', summary: 'S2' };
+        const changeUnique = { path: 'unique.ts', changeType: 'modified' as const, timestamp: '2026-02-14T10:10:00Z', summary: 'U' };
 
         s1.filesModified.push(changeS1);
         s2.filesModified.push(changeS2, changeUnique);

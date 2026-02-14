@@ -8,6 +8,9 @@ export interface AcssSession {
     name: string;
     techStack: string[];
     entryPoints: string[];
+    fileTree?: Record<string, string[]>;
+    totalFiles?: number;
+    totalLines?: number;
   };
 
   context?: {
@@ -26,6 +29,7 @@ export interface AcssSession {
   filesModified: Array<{
     path: string;
     changeType: 'created' | 'modified' | 'deleted';
+    timestamp: string;
     summary?: string;      // optional: short human explanation
     important?: boolean;   // allow user marking
   }>;
@@ -40,6 +44,11 @@ export interface AcssSession {
 
   nextSteps: string[];
   chatHistorySummary?: string;
+  chatContext?: {
+    importedFrom: string;
+    conversationSummary: string;
+    keyInsights: string[];
+  };
 
   sources: Array<{
     tool: 'cursor' | 'gemini' | 'chatgpt' | 'claude' | 'other';

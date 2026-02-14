@@ -1,6 +1,9 @@
 {
     "name": "@acss/core",
-    "version": "0.1.0",
+    "version": "1.0.0",
+    "description": "Core logic for ACSS (AI Coding Session State) protocol",
+    "author": "Saumya Patel <saumyavishwam@gmail.com>",
+    "license": "MIT",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
@@ -9,12 +12,19 @@
         "prepublishOnly": "npm run build"
     },
     "devDependencies": {
+        "@types/fs-extra": "^11.0.4",
         "@types/jest": "^29.5.12",
+        "@types/pdf-parse": "^1.1.5",
         "jest": "^29.7.0",
         "ts-jest": "^29.1.1",
         "typescript": "^5.0.0"
     },
     "dependencies": {
-        "axios": "^1.13.5"
+        "axios": "^1.13.5",
+        "dotenv": "^17.3.1",
+        "fs-extra": "^11.3.3",
+        "globby": "^16.1.0",
+        "mammoth": "^1.11.0",
+        "pdf-parse": "^2.4.5"
     }
 }
