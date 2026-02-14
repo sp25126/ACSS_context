@@ -25,6 +25,9 @@ export class SessionSidebarProvider implements vscode.WebviewViewProvider {
         const scriptUri = webview.asWebviewUri(
             vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js')
         );
+        const styleUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this._extensionUri, 'media', 'sidebar.css')
+        );
 
         return `<!DOCTYPE html>
             <html lang="en">
@@ -32,38 +35,33 @@ export class SessionSidebarProvider implements vscode.WebviewViewProvider {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>ACSS Live Session</title>
-                <style>
-                    body { font-family: sans-serif; padding: 10px; color: var(--vscode-foreground); }
-                    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-                    .header h3 { margin: 0; }
-                    #connection-badge { font-size: 0.7em; padding: 2px 6px; border-radius: 4px; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); }
-                    #connection-badge.connected { background: #4ec9b0; color: #000; }
-                    #connection-badge.disconnected { background: var(--vscode-errorForeground); color: var(--vscode-button-foreground); }
-                    .section { margin-bottom: 15px; border-bottom: 1px solid var(--vscode-widget-border); padding-bottom: 10px; }
-                    .label { font-weight: bold; font-size: 0.8em; opacity: 0.7; text-transform: uppercase; margin-bottom: 5px; }
-                    .status { font-weight: bold; color: var(--vscode-peekViewResult-matchForeground); }
-                    .decision-item, .step-item { font-size: 0.9em; margin-bottom: 4px; padding-left: 10px; border-left: 2px solid var(--vscode-button-background); }
-                    .empty { opacity: 0.5; font-style: italic; }
-                </style>
+                <link href="${styleUri}" rel="stylesheet">
             </head>
             <body>
                 <div class="header">
-                    <h3>ACSS Overview</h3>
-                    <div id="connection-badge" class="disconnected">Disconnected</div>
-                </div>
-                <div class="section">
-                    <div class="label">Current Task</div>
-                    <div id="task-intent">Waiting for stream...</div>
-                    <div id="task-status" class="status"></div>
+                    <div class="brand">
+                        <span>🧠</span> ACSS
+                    </div>
+                    <div id="connection-badge" class="disconnected">Offline</div>
                 </div>
 
                 <div class="section">
-                    <div class="label">Last Decisions</div>
+                    <div class="label">Current Focus</div>
+                    <div class="card">
+                        <div id="task-intent" class="loading-pulse">Waiting for stream...</div>
+                        <div style="margin-top: 8px;">
+                             <span id="task-status"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="label">Decisions Log</div>
                     <div id="decisions-list"></div>
                 </div>
 
                 <div class="section">
-                    <div class="label">Next Steps</div>
+                    <div class="label">Next Actions</div>
                     <div id="steps-list"></div>
                 </div>
 

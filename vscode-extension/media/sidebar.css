@@ -1,0 +1,187 @@
+/* Modern ACSS Sidebar Theme */
+:root {
+    --gap: 12px;
+    --radius: 6px;
+    --anim-speed: 0.2s;
+}
+
+body {
+    padding: 16px;
+    color: var(--vscode-foreground);
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
+    line-height: 1.5;
+    background-color: var(--vscode-sideBar-background);
+}
+
+/* Header Section */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.brand {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: var(--vscode-sideBarTitle-foreground);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Status Badge */
+#connection-badge {
+    font-size: 0.75em;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all var(--anim-speed) ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#connection-badge.connected {
+    background-color: var(--vscode-testing-iconPassed);
+    color: #fff;
+    /* Always white for contrast on green */
+    box-shadow: 0 0 10px rgba(78, 201, 176, 0.3);
+}
+
+#connection-badge.disconnected {
+    background-color: var(--vscode-testing-iconFailed);
+    color: #fff;
+}
+
+/* Cards & Sections */
+.section {
+    margin-bottom: 24px;
+    animation: fade-in 0.4s ease-out;
+}
+
+.label {
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--vscode-descriptionForeground);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.card {
+    background: var(--vscode-list-hoverBackground);
+    border: 1px solid var(--vscode-widget-border);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 12px;
+    position: relative;
+    transition: transform 0.1s ease;
+}
+
+.card:hover {
+    border-color: var(--vscode-focusBorder);
+}
+
+/* Main Task Status */
+#task-intent {
+    font-size: 1em;
+    font-weight: 500;
+    color: var(--vscode-editor-foreground);
+    margin-bottom: 4px;
+}
+
+#task-status {
+    display: inline-block;
+    font-size: 0.75em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--vscode-badge-background);
+    color: var(--vscode-badge-foreground);
+}
+
+/* Timeline / Lists */
+.list-item {
+    position: relative;
+    padding-left: 16px;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    color: var(--vscode-foreground);
+}
+
+.list-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--vscode-textLink-foreground);
+}
+
+.decision-item {
+    border-left: 2px solid var(--vscode-gitDecoration-addedResourceForeground);
+    padding-left: 12px;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    color: var(--vscode-grid-row-hoverBackground);
+    /* Fallback color, will override */
+    color: var(--vscode-foreground);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 8px 12px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    padding: 8px;
+    background: var(--vscode-editor-background);
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+}
+
+.step-item:hover {
+    border-color: var(--vscode-list-activeSelectionBackground);
+}
+
+.step-check {
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--vscode-foreground);
+    border-radius: 3px;
+    opacity: 0.5;
+}
+
+/* Animations */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.empty {
+    font-style: italic;
+    opacity: 0.6;
+    font-size: 0.9em;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--vscode-scrollbarSlider-background);
+    border-radius: 2px;
+}
