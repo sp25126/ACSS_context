@@ -1,0 +1,67 @@
+{
+    "name": "acss-live-view",
+    "displayName": "ACSS Live Session View",
+    "description": "Live view of your AI coding session state",
+    "version": "0.1.0",
+    "publisher": "acss",
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onView:acss.sessionView",
+        "onCommand:acss.showSessionView"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "acss-session-explorer",
+                    "title": "ACSS",
+                    "icon": "media/icon.svg"
+                }
+            ]
+        },
+        "views": {
+            "acss-session-explorer": [
+                {
+                    "type": "webview",
+                    "id": "acss.sessionView",
+                    "name": "Live Session"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "acss.connect",
+                "title": "ACSS: Connect to Stream"
+            },
+            {
+                "command": "acss.showSessionView",
+                "title": "ACSS: Show Live Session View"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "acss.showSessionView",
+                "key": "ctrl+shift+a",
+                "mac": "cmd+shift+a",
+                "when": "!terminalFocus"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "build": "npm run compile",
+        "watch": "tsc -watch -p ./"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.80.0",
+        "@types/node": "18.x",
+        "typescript": "^5.1.3"
+    }
+}

@@ -1,0 +1,41 @@
+{
+    "sessionId": "cursor-1",
+    "projectRoot": "C:\\Users\\saumy\\sample",
+    "createdAt": "2026-02-14T00:00:00.000Z",
+    "updatedAt": "2026-02-14T00:00:00.000Z",
+    "projectMetadata": {
+        "name": "Sample Project",
+        "techStack": [
+            "TypeScript"
+        ],
+        "entryPoints": [
+            "src/index.ts"
+        ]
+    },
+    "currentTask": {
+        "intent": "Initial Task",
+        "status": "in_progress",
+        "startedAt": "2026-02-14T00:00:00.000Z",
+        "lastUpdatedAt": "2026-02-14T00:05:00.000Z"
+    },
+    "filesModified": [
+        {
+            "path": "file1.ts",
+            "changeType": "created",
+            "summary": "Cursor edit"
+        }
+    ],
+    "decisions": [
+        "Decision by Cursor"
+    ],
+    "errorsEncountered": [],
+    "nextSteps": [
+        "Step from Cursor"
+    ],
+    "sources": [
+        {
+            "tool": "cursor",
+            "note": "Exported from Cursor"
+        }
+    ]
+}

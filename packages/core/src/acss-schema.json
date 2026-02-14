@@ -1,0 +1,197 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AcssSession",
+  "type": "object",
+  "properties": {
+    "sessionId": {
+      "type": "string"
+    },
+    "projectRoot": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "projectMetadata": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "techStack": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "entryPoints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "techStack",
+        "entryPoints"
+      ]
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "gitBranch": {
+          "type": "string"
+        },
+        "nodeVersion": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        }
+      }
+    },
+    "currentTask": {
+      "type": "object",
+      "properties": {
+        "intent": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "not_started",
+            "in_progress",
+            "blocked",
+            "done"
+          ]
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastUpdatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "intent",
+        "status",
+        "startedAt",
+        "lastUpdatedAt"
+      ]
+    },
+    "filesModified": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "changeType": {
+            "type": "string",
+            "enum": [
+              "created",
+              "modified",
+              "deleted"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "important": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path",
+          "changeType"
+        ]
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "errorsEncountered": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "line": {
+            "type": "number"
+          },
+          "resolved": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "message",
+          "resolved"
+        ]
+      }
+    },
+    "nextSteps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "chatHistorySummary": {
+      "type": "string"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tool": {
+            "type": "string",
+            "enum": [
+              "cursor",
+              "gemini",
+              "chatgpt",
+              "claude",
+              "other"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "tool",
+          "note"
+        ]
+      }
+    }
+  },
+  "required": [
+    "sessionId",
+    "projectRoot",
+    "createdAt",
+    "updatedAt",
+    "projectMetadata",
+    "currentTask",
+    "filesModified",
+    "decisions",
+    "errorsEncountered",
+    "nextSteps",
+    "sources"
+  ]
+}

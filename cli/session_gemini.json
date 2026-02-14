@@ -1,0 +1,52 @@
+{
+    "sessionId": "gemini-1",
+    "projectRoot": "C:\\Users\\saumy\\sample",
+    "createdAt": "2026-02-14T00:00:00.000Z",
+    "updatedAt": "2026-02-14T00:00:00.000Z",
+    "projectMetadata": {
+        "name": "Gemini Project",
+        "techStack": [
+            "TypeScript"
+        ],
+        "entryPoints": [
+            "src/index.ts"
+        ]
+    },
+    "currentTask": {
+        "intent": "Updated Task",
+        "status": "completed",
+        "startedAt": "2026-02-14T00:00:00.000Z",
+        "lastUpdatedAt": "2026-02-14T00:10:00.000Z"
+    },
+    "filesModified": [
+        {
+            "path": "file1.ts",
+            "changeType": "modified",
+            "summary": "Gemini edit"
+        },
+        {
+            "path": "file2.ts",
+            "changeType": "created",
+            "summary": "Gemini new file"
+        }
+    ],
+    "decisions": [
+        "Decision by Gemini",
+        "Decision by Cursor"
+    ],
+    "errorsEncountered": [
+        {
+            "message": "Sample Error",
+            "resolved": false
+        }
+    ],
+    "nextSteps": [
+        "Step from Gemini"
+    ],
+    "sources": [
+        {
+            "tool": "gemini",
+            "note": "Exported from Gemini"
+        }
+    ]
+}

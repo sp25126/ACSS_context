@@ -1,0 +1,31 @@
+{
+  "sessionId": "0evt7k",
+  "projectRoot": "C:\\Users\\saumy\\OneDrive\\Desktop\\New folder\\acss-tool\\cli",
+  "createdAt": "2026-02-14T00:41:06.076Z",
+  "updatedAt": "2026-02-14T00:41:06.437Z",
+  "projectMetadata": {
+    "name": "test-project",
+    "techStack": [],
+    "entryPoints": []
+  },
+  "currentTask": {
+    "intent": "Initial setup",
+    "status": "not_started",
+    "startedAt": "2026-02-14T00:41:06.076Z",
+    "lastUpdatedAt": "2026-02-14T00:41:06.076Z"
+  },
+  "filesModified": [],
+  "decisions": [
+    "Verified CLI init"
+  ],
+  "errorsEncountered": [],
+  "nextSteps": [
+    "Verify CLI log"
+  ],
+  "sources": [
+    {
+      "tool": "other",
+      "note": "Initialized via core library"
+    }
+  ]
+}
