@@ -11,11 +11,10 @@ ACSS is a lightweight, portable protocol that captures the *intent*, *decisions*
 
 ## 🚀 Quick Start (Watch the Demo)
 
-We have included a fully automated demo script to show you ACSS in action.
+I have included a full demo video 
 
 ```batch
-# Run the demo on Windows
-demo_video.bat
+https://youtu.be/GgGUTj-WXK8
 ```
 
 This script simulates a full development lifecycle:
